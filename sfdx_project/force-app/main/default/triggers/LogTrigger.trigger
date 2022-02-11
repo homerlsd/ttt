@@ -11,7 +11,7 @@ trigger LogTrigger on Log__c (after insert, before insert, before update, after 
     if(Trigger.isBefore && Trigger.isUpdate) {
         LogTriggerHelper.sendToBroadcast(Trigger.new, Trigger.oldMap);
     }
-
+/// some changes here
     if (Trigger.isBefore && Trigger.isDelete) {
         LogTriggerHelper.deleteContentDocument(Trigger.oldMap);
     }
