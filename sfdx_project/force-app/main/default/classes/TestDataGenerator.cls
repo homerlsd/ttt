@@ -366,14 +366,21 @@ public with sharing class TestDataGenerator {
 		Map<String, Object> input = (Map<String, Object>)JSON.deserializeUntyped(JSON.serialize(data));
 		String slackChannel;
 		String email;
+		String teamId;
+		String channelId;
 		if(input.containsKey(TEST_MONITORING_IMPACT_KEY_SLACK_CHANNEL)) {
 			slackChannel = String.valueOf(input.get(TEST_MONITORING_IMPACT_KEY_SLACK_CHANNEL));
 		}
 		if(input.containsKey(TEST_MONITORING_IMPACT_KEY_EMAIL)) {
 			email = String.valueOf(input.get(TEST_MONITORING_IMPACT_KEY_EMAIL));
 		}
+		else if(input.containsKey(TEST_MONITORING_SPIKE_KEY_TEAM_ID)
+				&& input.containsKey(TEST_MONITORING_SPIKE_KEY_CHANNEL_ID)) {
+			teamId = String.valueOf(input.get(TEST_MONITORING_SPIKE_KEY_TEAM_ID));
+			channelId = String.valueOf(input.get(TEST_MONITORING_SPIKE_KEY_CHANNEL_ID));
+		}
 
-		if(String.isNotBlank(slackChannel) || String.isNotBlank(email)) {
+		if(String.isNotBlank(slackChannel) || String.isNotBlank(email) || (String.isNotBlank(teamId) && String.isNotBlank(channelId))) {
 			// setup test monitoring rule / ruleFilters / jiraDefaultAction / ruleAction
 			Rule__c testMonitoringImpactRule = createTestMonitoringImpactRule();
 			deleteSlackRuleActions(testMonitoringImpactRule.Id);
@@ -385,6 +392,10 @@ public with sharing class TestDataGenerator {
 			if(String.isNotBlank(email)) {
 				Action__c emailAction = createEmailAction(email);
 				RuleAction__c ruleAction = createMonitoringRuleAction(testMonitoringImpactRule.Id, emailAction.Id);
+			}
+			else if(String.isNotBlank(teamId) && String.isNotBlank(channelId)) {
+				Action__c teamsAction = createTeamsAction(teamId, channelId);
+				RuleAction__c ruleAction = createMonitoringRuleAction(testMonitoringImpactRule.Id, teamsAction.Id);
 			}
 			result = true;
 		}
@@ -416,6 +427,7 @@ public with sharing class TestDataGenerator {
 			WHERE Name__c = :TEST_MONITORING_IMPACT_RULE_NAME
 				AND Description__c = :TEST_MONITORING_IMPACT_RULE_DESCRIPTION
 				AND Type__c = :MonitoringUtil.RULE_TYPE_MONITORING
+				AND Active__c = true
 			LIMIT 1
 		];
 		if(!existRule.isEmpty()) {
@@ -496,6 +508,32 @@ public with sharing class TestDataGenerator {
 
 	public static void deleteSlackRuleActions(Id ruleId) {
 		delete [SELECT Id FROM RuleAction__c WHERE Rule__c = :ruleId];
+	}
+
+	public static Action__c createTeamsAction(String teamId, String channelId) {
+		Action__c teamsAction;
+		Id recordtypeId = Schema.SObjectType.Action__c.getRecordTypeInfosByName().get('Monitoring').getRecordtypeId();
+		List<Action__c> existTeamsAction = [
+			SELECT Id
+			FROM Action__c
+			WHERE Team_Id__c = :teamId
+				AND Channel_Id__c = :channelId
+				AND (Action_Type__c = :MonitoringUtil.ACTION_TYPE_TEAMS_NOTIFICATION OR Type__c = :MonitoringUtil.ACTION_TYPE_TEAMS_NOTIFICATION)
+				AND RecordTypeId = :recordtypeId
+			LIMIT 1
+		];
+		if(!existTeamsAction.isEmpty()) {
+			teamsAction = existTeamsAction.get(0);
+		}
+		else {
+			teamsAction = new Action__c();
+			teamsAction.RecordTypeId = recordtypeId;
+			teamsAction.Action_Type__c = MonitoringUtil.ACTION_TYPE_EMAIL_NOTIFICATION;
+			teamsAction.Team_Id__c = teamId;
+			teamsAction.Channel_Id__c = channelId;
+			insert teamsAction;
+		}
+		return teamsAction;
 	}
 
 	public static Action__c createEmailAction(String email) {
@@ -669,6 +707,8 @@ public with sharing class TestDataGenerator {
 	public static final Integer TEST_MONITORING_SPIKE_TIME_INTERVAL = 60;
 	public static final String TEST_MONITORING_SPIKE_KEY_SLACK_CHANNEL = 'slackChannel';
 	public static final String TEST_MONITORING_SPIKE_KEY_EMAIL = 'email';
+	public static final String TEST_MONITORING_SPIKE_KEY_TEAM_ID = 'teamId';
+	public static final String TEST_MONITORING_SPIKE_KEY_CHANNEL_ID = 'channelId';
 
 	public static Map<String, Object> getExistMonitoringRules() {
 		Map<String, Object> result = new Map<String, Object>();
@@ -693,6 +733,8 @@ public with sharing class TestDataGenerator {
 		Map<String, Object> input = (Map<String, Object>)JSON.deserializeUntyped(JSON.serialize(data));
 		String slackChannel;
 		String email;
+		String teamId;
+		String channelId;
 		if(input.containsKey(TEST_MONITORING_SPIKE_KEY_SLACK_CHANNEL)
 			&& input.get(TEST_MONITORING_SPIKE_KEY_SLACK_CHANNEL) != null
 			&& String.isNotBlank(String.valueOf(input.get(TEST_MONITORING_SPIKE_KEY_SLACK_CHANNEL)))) {
@@ -701,8 +743,13 @@ public with sharing class TestDataGenerator {
 		else if(input.containsKey(TEST_MONITORING_SPIKE_KEY_EMAIL)) {
 			email = String.valueOf(input.get(TEST_MONITORING_SPIKE_KEY_EMAIL));
 		}
+		else if(input.containsKey(TEST_MONITORING_SPIKE_KEY_TEAM_ID)
+			&& input.containsKey(TEST_MONITORING_SPIKE_KEY_CHANNEL_ID)) {
+			teamId = String.valueOf(input.get(TEST_MONITORING_SPIKE_KEY_TEAM_ID));
+			channelId = String.valueOf(input.get(TEST_MONITORING_SPIKE_KEY_CHANNEL_ID));
+		}
 
-		if(String.isNotBlank(slackChannel) || String.isNotBlank(email)) {
+		if(String.isNotBlank(slackChannel) || String.isNotBlank(email) || (String.isNotBlank(teamId) && String.isNotBlank(channelId))) {
 			// setup test monitoring rule / ruleFilters / jiraDefaultAction / ruleAction
 			Rule__c testMonitoringSpikeRule = createTestMonitoringSpikeRule();
 			deleteSlackRuleActions(testMonitoringSpikeRule.Id);
@@ -714,6 +761,10 @@ public with sharing class TestDataGenerator {
 			else if(String.isNotBlank(email)) {
 				Action__c emailAction = createEmailAction(email);
 				RuleAction__c ruleAction = createMonitoringRuleAction(testMonitoringSpikeRule.Id, emailAction.Id);
+			}
+			else if(String.isNotBlank(teamId) && String.isNotBlank(channelId)) {
+				Action__c teamsAction = createTeamsAction(teamId, channelId);
+				RuleAction__c ruleAction = createMonitoringRuleAction(testMonitoringSpikeRule.Id, teamsAction.Id);
 			}
 			result = true;
 		}
@@ -792,6 +843,7 @@ public with sharing class TestDataGenerator {
 			WHERE Name__c = :TEST_MONITORING_SPIKE_RULE_NAME
 				AND Description__c = :TEST_MONITORING_SPIKE_RULE_DESCRIPTION
 				AND Type__c = :MonitoringUtil.RULE_TYPE_MONITORING
+				AND Active__c = true
 			LIMIT 1
 		];
 		if(!existRule.isEmpty()) {

@@ -298,12 +298,12 @@ public without sharing class JiraService {
             throw new JiraServiceException('Project with Id ' + projectId + ' not found.');
         }
         String jql = 'project="'+projectId+'" AND issuetype="Epic"';
-        String url = ConfigUtil.JQL_ENDPOINT + EncodingUtil.URLENCODE(jql, 'UTF-8');
-
+        HttpUtils.HttpURLParameters queryParams = new HttpUtils.HttpURLParameters();
+        queryParams.addEncodedParameter('jql', jql);
         String b = HttpUtils.get(
-            url,
-            ConfigUtil.JIRA_HEADERS,
-            200
+                ConfigUtil.JQL_ENDPOINT + queryParams.toStringParameters('?'),
+                ConfigUtil.JIRA_HEADERS,
+                200
         );
         Map<String, Object> resp = (Map<String, Object>)JSON.deserializeUntyped(b);
         return (List<Epic>)JSON.deserialize(JSON.serialize(resp.get('issues')), List<Epic>.class);
@@ -312,12 +312,12 @@ public without sharing class JiraService {
     public static JiraIssue getIssueInJiraByHashe2(String hash2, String jiraProjectId) {
         validateConnectionToJira();
         String jql = 'project = \''+jiraProjectId+'\' AND labels = \'h2_'+hash2+'\' AND statusCategory != \'done\' ORDER BY created ASC';
-        String url = ConfigUtil.JQL_ENDPOINT + EncodingUtil.urlEncode(jql, 'UTF-8');
-
+        HttpUtils.HttpURLParameters queryParams = new HttpUtils.HttpURLParameters();
+        queryParams.addEncodedParameter('jql', jql);
         String b = HttpUtils.get(
-            url,
-            ConfigUtil.JIRA_HEADERS,
-            200
+                ConfigUtil.JQL_ENDPOINT + queryParams.toStringParameters('?'),
+                ConfigUtil.JIRA_HEADERS,
+                200
         );
         JQLResponse resp = (JQLResponse)JSON.deserialize(b, JQLResponse.class);
         if (resp.total > 0) {
@@ -329,12 +329,12 @@ public without sharing class JiraService {
     public static JiraIssue getIssueInJiraByHashe3(String hash3, String jiraProjectId) {
         validateConnectionToJira();
         String jql = 'project = \''+jiraProjectId+'\' AND labels = \'h3_'+hash3+'\' AND statusCategory != \'done\' ORDER BY created ASC';
-        String url = ConfigUtil.JQL_ENDPOINT + EncodingUtil.urlEncode(jql, 'UTF-8');
-
+        HttpUtils.HttpURLParameters queryParams = new HttpUtils.HttpURLParameters();
+        queryParams.addEncodedParameter('jql', jql);
         String b = HttpUtils.get(
-            url,
-            ConfigUtil.JIRA_HEADERS,
-            200
+                ConfigUtil.JQL_ENDPOINT + queryParams.toStringParameters('?'),
+                ConfigUtil.JIRA_HEADERS,
+                200
         );
         JQLResponse resp = (JQLResponse)JSON.deserialize(b, JQLResponse.class);
         if (resp.total > 0) {
@@ -988,9 +988,14 @@ public without sharing class JiraService {
         if(!taskKeys.isEmpty()) {
             // /rest/api/2/search?jql=KEY%20IN%20(key1,key2,...,keyN)&fields=status&maxResults=100)
             try {
-                String q = 'KEY%20IN%20(' + String.join(taskKeys, ',') + ')&fields=resolutiondate&maxResults=100&validateQuery=false';
+                String jql = 'KEY IN (' + String.join(taskKeys, ',') + ')';
+                HttpUtils.HttpURLParameters queryParams = new HttpUtils.HttpURLParameters();
+                queryParams.addEncodedParameter('jql', jql);
+                queryParams.addParameter('fields', 'resolutiondate');
+                queryParams.addParameter('maxResults', '100');
+                queryParams.addParameter('validateQuery', 'false');
                 b = HttpUtils.get(
-                        ConfigUtil.JQL_ENDPOINT + q,
+                        ConfigUtil.JQL_ENDPOINT + queryParams.toStringParameters('?'),
                         ConfigUtil.JIRA_HEADERS,
                         200
                 );

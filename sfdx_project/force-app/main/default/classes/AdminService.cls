@@ -476,17 +476,17 @@ public without sharing class AdminService {
 
         OAuthSettings__mdt mdtSettings = OAuthSettings__mdt.getInstance('Slack');
         if(mdtSettings != null) {
-            String pattern = 'https://slack.com/oauth/authorize?client_id={0}&scope={1}&state={2}';
+            HttpUtils.HttpURLParameters bodyParams = new HttpUtils.HttpURLParameters();
+            bodyParams.addParameter(HttpUtils.HTTP_URL_PARAM_CLIENT_ID, mdtSettings.Client_Id__c);
+            bodyParams.addParameter(HttpUtils.HTTP_URL_PARAM_SCOPE, mdtSettings.Scope__c);
+
             Map<String, Object> state = new Map<String, Object>{
-                'redirectUrl' => System.URL.getSalesforceBaseUrl().toExternalForm() + '/apex/' + ConfigUtil.getNameSpacePrefix() + 'Settings',
-                'isSlack' => true
+                    'redirectUrl' => System.Url.getSalesforceBaseUrl().toExternalForm() + '/apex/' + ConfigUtil.getNameSpacePrefix() + 'Settings',
+                    'isSlack' => true
             };
-            List<String> params = new List<String>{
-                mdtSettings.Client_Id__c,
-                mdtSettings.Scope__c,
-                EncodingUtil.urlEncode(EncodingUtil.base64Encode(Blob.valueOf(JSON.serialize(state))), 'UTF-8')
-            };
-            settings.oAuthEndpoint = String.format(pattern, params);
+
+            bodyParams.addEncodedParameter(HttpUtils.HTTP_URL_PARAM_STATE, EncodingUtil.base64Encode(Blob.valueOf(JSON.serialize(state))));
+            settings.oAuthEndpoint = ConfigUtil.SLACK_AUTHORIZE_URL + bodyParams.toStringParameters('?');
         }
         return settings;
     }
@@ -1029,6 +1029,7 @@ public without sharing class AdminService {
         public Boolean monitoring;
         public Boolean monitoringTestInProgress;
         public Boolean isPassthrough;
+        public Boolean useTeams;
 
         public QuickStartStateWrapper() {
             this.connectApp = false;
@@ -1040,6 +1041,7 @@ public without sharing class AdminService {
             this.monitoring = false;
             this.monitoringTestInProgress = false;
             this.isPassthrough = false;
+            this.useTeams = false;
         }
     }
 
@@ -1504,18 +1506,20 @@ public without sharing class AdminService {
         }
         OAuthSettings__mdt mdtSettings = OAuthSettings__mdt.getInstance('Jira');
         if(mdtSettings != null) {
-            String pattern = 'https://auth.atlassian.com/authorize?audience=api.atlassian.com&client_id={0}&scope={1}&redirect_uri={2}&state={3}&response_type=code&prompt=consent';
+            HttpUtils.HttpURLParameters bodyParams = new HttpUtils.HttpURLParameters();
+            bodyParams.addEncodedParameter(HttpUtils.HTTP_URL_PARAM_CLIENT_ID, mdtSettings.Client_Id__c);
+            bodyParams.addEncodedParameter(HttpUtils.HTTP_URL_PARAM_SCOPE, mdtSettings.Scope__c);
+            bodyParams.addParameter(HttpUtils.HTTP_URL_PARAM_REDIRECT_URI, LoggerSettingsController.PHAROS_OUATH_CALLBACK_PROXY);
+            bodyParams.addParameter(HttpUtils.HTTP_URL_PARAM_RESPONSE_TYPE, HttpUtils.HTTP_URL_PARAM_CODE);
+            bodyParams.addParameter('prompt', 'consent');
+
             Map<String, Object> state = new Map<String, Object>{
-                'redirectUrl' => System.URL.getSalesforceBaseUrl().toExternalForm() + '/apex/' + ConfigUtil.getNameSpacePrefix() + 'Settings',
-                'isJira' => true
+                    'redirectUrl' => System.Url.getSalesforceBaseUrl().toExternalForm() + '/apex/' + ConfigUtil.getNameSpacePrefix() + 'Settings',
+                    'isJira' => true
             };
-            List<String> params = new List<String>{
-                mdtSettings.Client_Id__c,
-                EncodingUtil.urlEncode(mdtSettings.Scope__c, 'UTF-8'),
-                'https://auth.pharos.ai',
-                EncodingUtil.urlEncode(EncodingUtil.base64Encode(Blob.valueOf(JSON.serialize(state))), 'UTF-8')
-            };
-            jiraSettings.oAuthEndpoint = String.format(pattern, params);
+
+            bodyParams.addEncodedParameter(HttpUtils.HTTP_URL_PARAM_STATE, EncodingUtil.base64Encode(Blob.valueOf(JSON.serialize(state))));
+            jiraSettings.oAuthEndpoint = ConfigUtil.JIRA_CLOUD_AUTHORIZE_ENDPOINT + bodyParams.toStringParameters('?');
         }
 
         return jiraSettings;

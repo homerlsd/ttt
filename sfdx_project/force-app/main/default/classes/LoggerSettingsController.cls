@@ -42,17 +42,16 @@ public with sharing class LoggerSettingsController {
             AdminService.upsertRemoteSiteSetting(ConfigUtil.REMOTE_SITE_SETTINGS_SLACK_API_NAME, ConfigUtil.REMOTE_SITE_SETTINGS_SLACK_API_URL, ConfigUtil.REMOTE_SITE_SETTINGS_SLACK_DESCRIPTION);
 
             OAuthSettings__mdt mdtSettings = OAuthSettings__mdt.getInstance(SLACK_SETTINGS_NAME);
-            String clientId = mdtSettings.Client_Id__c;
-            String clientSecret = mdtSettings.Client_Secret__c;
             String endpoint = SLACK_OAUTH_ENDPOINT;
-            String queryParams = '?code=' + EncodingUtil.urlEncode((String)input.get('code'), 'UTF-8')
-                + '&client_id=' + EncodingUtil.urlEncode(clientId, 'UTF-8')
-                + '&client_secret=' + EncodingUtil.urlEncode(clientSecret, 'UTF-8');
+            HttpUtils.HttpURLParameters bodyParams = new HttpUtils.HttpURLParameters();
+            bodyParams.addEncodedParameter(HttpUtils.HTTP_URL_PARAM_CODE, (String)input.get('code'));
+            bodyParams.addEncodedParameter(HttpUtils.HTTP_URL_PARAM_CLIENT_ID, mdtSettings.Client_Id__c);
+            bodyParams.addEncodedParameter(HttpUtils.HTTP_URL_PARAM_CLIENT_SECRET, mdtSettings.Client_Secret__c);
             String b = HttpUtils.post(
-                endpoint + queryParams,
-                '',
-                null,
-                200
+                    endpoint,
+                    bodyParams.toStringParameters(),
+                    null,
+                    200
             );
             ConnectedOrgService.AuthTokenResponse resp = (ConnectedOrgService.AuthTokenResponse)JSON.deserialize(b, ConnectedOrgService.AuthTokenResponse.class);
             ConfigUtil.SLACK_SETTINGS.Slack_API_Token__c = resp.access_token;

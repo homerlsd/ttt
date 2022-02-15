@@ -180,15 +180,19 @@ public with sharing class ConnectedOrgService {
             AdminService.upsertRemoteSiteSettingsMetadata(rssInstance);
         }
 
-        String url = (state.loginUrl.endsWith('/') ? state.loginUrl.removeEnd('/') : state.loginUrl) + ConfigUtil.SF_OAUTH_TOKEN_ENDPOINT;
-        String body = 'grant_type=authorization_code&code=' + codeFromOAuth + '&client_id=' + EncodingUtil.urlEncode(ConfigUtil.CONNECTED_ORGS_SETTINGS.Client_Key__c, 'UTF-8')+'&client_secret='+EncodingUtil.urlEncode(ConfigUtil.CONNECTED_ORGS_SETTINGS.Client_Secret__c, 'UTF-8')+'&redirect_uri='+EncodingUtil.urlEncode(redirectUrl, 'UTF-8');
-
+        String endpoint = (state.loginUrl.endsWith('/') ? state.loginUrl.removeEnd('/') : state.loginUrl) + ConfigUtil.SF_OAUTH_TOKEN_ENDPOINT;
+        HttpUtils.HttpURLParameters bodyParams = new HttpUtils.HttpURLParameters();
+        bodyParams.addEncodedParameter(HttpUtils.HTTP_URL_PARAM_GRANT_TYPE, HttpUtils.HTTP_URL_PARAM_AUTHORIZATION_CODE);
+        bodyParams.addEncodedParameter(HttpUtils.HTTP_URL_PARAM_CODE, codeFromOAuth);
+        bodyParams.addEncodedParameter(HttpUtils.HTTP_URL_PARAM_CLIENT_ID, ConfigUtil.CONNECTED_ORGS_SETTINGS.Client_Key__c);
+        bodyParams.addEncodedParameter(HttpUtils.HTTP_URL_PARAM_CLIENT_SECRET, ConfigUtil.CONNECTED_ORGS_SETTINGS.Client_Secret__c);
+        bodyParams.addEncodedParameter(HttpUtils.HTTP_URL_PARAM_REDIRECT_URI, redirectUrl);
         String b = HttpUtils.post(
-            url,
-            body,
-            ConfigUtil.OAUTH_HEADERS_MAP,
-            200,
-            rssInstance
+                endpoint,
+                bodyParams.toStringParameters(),
+                ConfigUtil.OAUTH_HEADERS_MAP,
+                200,
+                rssInstance
         );
 
         AuthTokenResponse resp = (AuthTokenResponse)JSON.deserialize(b, AuthTokenResponse.class);
@@ -268,15 +272,17 @@ public with sharing class ConnectedOrgService {
          *  Please do unpdate manualy after this method
         */
 
-        String url = corg.Instance_Url__c + ConfigUtil.SF_OAUTH_TOKEN_ENDPOINT;
-        String body = 'grant_type=refresh_token&refresh_token='+EncodingUtil.urlEncode(corg.Refresh_Token__c, 'UTF-8')+'&client_id='+EncodingUtil.urlEncode(ConfigUtil.CONNECTED_ORGS_SETTINGS.Client_Key__c, 'UTF-8')+'&client_secret='+EncodingUtil.urlEncode(ConfigUtil.CONNECTED_ORGS_SETTINGS.Client_Secret__c, 'UTF-8');
-
-
+        String endpoint = corg.Instance_Url__c + ConfigUtil.SF_OAUTH_TOKEN_ENDPOINT;
+        HttpUtils.HttpURLParameters bodyParams = new HttpUtils.HttpURLParameters();
+        bodyParams.addEncodedParameter(HttpUtils.HTTP_URL_PARAM_GRANT_TYPE, HttpUtils.HTTP_URL_PARAM_REFRESH_TOKEN);
+        bodyParams.addEncodedParameter(HttpUtils.HTTP_URL_PARAM_REFRESH_TOKEN, corg.Refresh_Token__c);
+        bodyParams.addEncodedParameter(HttpUtils.HTTP_URL_PARAM_CLIENT_ID, ConfigUtil.CONNECTED_ORGS_SETTINGS.Client_Key__c);
+        bodyParams.addEncodedParameter(HttpUtils.HTTP_URL_PARAM_CLIENT_SECRET, ConfigUtil.CONNECTED_ORGS_SETTINGS.Client_Secret__c);
         String b = HttpUtils.post(
-            url,
-            body,
-            ConfigUtil.OAUTH_HEADERS_MAP,
-            200
+                endpoint,
+                bodyParams.toStringParameters(),
+                ConfigUtil.OAUTH_HEADERS_MAP,
+                200
         );
 
         AuthTokenResponse resp = (AuthTokenResponse)JSON.deserialize(b, AuthTokenResponse.class);

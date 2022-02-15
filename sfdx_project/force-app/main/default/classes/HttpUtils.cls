@@ -194,6 +194,7 @@ public with sharing class HttpUtils {
 
 	public static final String HTTP_URL_PARAM_CODE = 'code';
 	public static final String HTTP_URL_PARAM_REFRESH_TOKEN = 'refresh_token';
+	public static final String HTTP_URL_PARAM_AUTHORIZATION_CODE = 'authorization_code';
 	public static final String HTTP_URL_PARAM_CLIENT_ID = 'client_id';
 	public static final String HTTP_URL_PARAM_CLIENT_SECRET = 'client_secret';
 	public static final String HTTP_URL_PARAM_GRANT_TYPE = 'grant_type';

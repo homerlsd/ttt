@@ -109,6 +109,7 @@ public with sharing class ConfigUtil {
     public static final String REMOTE_SITE_SETTINGS_JIRA_CLOUD_API_URL = 'https://api.atlassian.com';
     public static final String REMOTE_SITE_SETTINGS_JIRA_CLOUD_OAUTH_NAME = 'Pharos_ai_JIRA_CLOUD_OAUTH_URL';
     public static final String REMOTE_SITE_SETTINGS_JIRA_CLOUD_OAUTH_DESCRIPTION = 'Pharos.ai - Jira integration OAuth URL';
+    public static final String JIRA_CLOUD_AUTHORIZE_ENDPOINT = 'https://auth.atlassian.com/authorize';
     public static final String JIRA_CLOUD_OAUTH_ENDPOINT = 'https://auth.atlassian.com/oauth/token';
     public static final String JIRA_CLOUD_SETTINGS_NAME = 'Jira';
     public static final String JIRA_CLOUD_OAUTH_USERNAME = 'oAuthUser';
@@ -130,7 +131,7 @@ public with sharing class ConfigUtil {
     public static final String GET_PROJECTS_ENDPOINT = ConfigUtil.JIRA_API_URL +'/rest/api/'+API_VERSION+'/issue/createmeta?';
 
     public static final String GET_PROJECT_ASSINABLE_USERS_ENDPOINT = ConfigUtil.JIRA_API_URL + '/rest/api/'+API_VERSION+'/user/assignable/search?project=';
-    public static final String JQL_ENDPOINT = ConfigUtil.JIRA_API_URL + '/rest/api/'+API_VERSION+'/search?jql=';
+    public static final String JQL_ENDPOINT = ConfigUtil.JIRA_API_URL + '/rest/api/'+API_VERSION+'/search';
     public static final String GET_CREATEMETA_ENDPOINT = ConfigUtil.JIRA_API_URL + '/rest/api/'+API_VERSION+'/issue/createmeta';
     public static final String GET_PROJECT_ENDPOINT = ConfigUtil.JIRA_API_URL + '/rest/api/'+API_VERSION+'/project/';
     public static final String GET_PROJECT_COMMENTS_ENDPOINT = ConfigUtil.JIRA_API_URL + '/rest/api/'+API_VERSION+'/project/projectId/components';
@@ -369,6 +370,7 @@ public with sharing class ConfigUtil {
         set;
     }
 
+    public static final String SLACK_AUTHORIZE_URL = 'https://slack.com/oauth/authorize';
     public static final String SLACK_POST_MESSAGE_ENDPOINT = 'https://slack.com/api/chat.postMessage';
     public static final String SLACK_CONVERSATION_LIST_ENDPOINT = 'https://slack.com/api/conversations.list?exclude_archived=true&types=public_channel,private_channel&limit=1000';
 
@@ -549,6 +551,20 @@ public with sharing class ConfigUtil {
             return SPLUNK_SETTINGS;
         }
         private set;
+    }
+
+    public static Git_API_Settings__c GIT_API_SETTINGS {
+        get {
+            if (GIT_API_SETTINGS == null) {
+                initGitAPISettings();
+            }
+            return GIT_API_SETTINGS;
+        }
+        private set;
+    }
+
+    public static void initGitAPISettings() {
+        GIT_API_SETTINGS = Git_API_Settings__c.getOrgDefaults();
     }
 
     public static Pharos_Settings__c PHAROS_SETTINGS {
