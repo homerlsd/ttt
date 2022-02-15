@@ -160,6 +160,7 @@ public with sharing class GitHubCommitBatch implements Database.batchable<Metada
 
 		MetadataTypeWrapperContainer apexClassContainer = new MetadataTypeWrapperContainer();
 		MetadataTypeWrapperContainer apexTriggerContainer = new MetadataTypeWrapperContainer();
+		MetadataTypeWrapperContainer flowContainer = new MetadataTypeWrapperContainer();
 
 		for(SetupAuditTrail auditTrail : changedItems) {
 			if(auditTrail.Section == AUDIT_TRAIL_SECTION_APEX_CLASS) {
@@ -179,7 +180,8 @@ public with sharing class GitHubCommitBatch implements Database.batchable<Metada
 			else if(auditTrail.Section == AUDIT_TRAIL_SECTION_FLOWS) {
 				for(FlowDefinitionView fdv : flows) {
 					if(auditTrail.Display.containsIgnoreCase(fdv.ApiName)) {
-						result.add(new MetadataTypeWrapper(METADATA_TYPE_FLOW, fdv.ApiName));
+						//result.add(new MetadataTypeWrapper(METADATA_TYPE_FLOW, fdv.ApiName));
+						flowContainer.addMember(METADATA_TYPE_FLOW, fdv.NamespacePrefix + '__' + fdv.ApiName, 1);
 					}
 				}
 			}
@@ -189,6 +191,9 @@ public with sharing class GitHubCommitBatch implements Database.batchable<Metada
 		}
 		if(!apexTriggerContainer.members.isEmpty()) {
 			result.addAll(apexTriggerContainer.members);
+		}
+		if(!flowContainer.members.isEmpty()) {
+			result.addAll(flowContainer.members);
 		}
 		if(!changedItems.isEmpty()) {
 			result.add(new MetadataTypeWrapper(METADATA_TYPE_CUSTOM_OBJECT, '*'));
