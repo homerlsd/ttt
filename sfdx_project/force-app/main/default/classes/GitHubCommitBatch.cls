@@ -127,6 +127,7 @@ public with sharing class GitHubCommitBatch implements Database.batchable<Metada
 		// return all metadata items
 		if(String.isBlank(ConfigUtil.GIT_API_SETTINGS.Last_Processed_Id__c)) {
 			result = getDefaultMetadataTypeMembers();
+			setLastProcessedId(getAuditTrails(null));
 		}
 		else {
 			List<SetupAuditTrail> changedItems = getAuditTrails(ConfigUtil.GIT_API_SETTINGS.Last_Processed_Id__c);
@@ -196,12 +197,24 @@ public with sharing class GitHubCommitBatch implements Database.batchable<Metada
 	}
 
 	public static List<SetupAuditTrail> getAuditTrails(String lastProcessedId) {
-		List<SetupAuditTrail> result = [
-			SELECT Id, Action, CreatedDate, Display, Section
-			FROM SetupAuditTrail
-			WHERE Id > :lastProcessedId
-			ORDER BY CreatedDate DESC
-		];
+		List<SetupAuditTrail> result = new List<SetupAuditTrail>();
+
+		if(lastProcessedId == null) {
+			result = [
+				SELECT Id, Action, CreatedDate, Display, Section
+				FROM SetupAuditTrail
+				ORDER BY CreatedDate DESC
+				LIMIT 1
+			];
+		}
+		else {
+			result = [
+				SELECT Id, Action, CreatedDate, Display, Section
+				FROM SetupAuditTrail
+				WHERE Id > :lastProcessedId
+				ORDER BY CreatedDate DESC
+			];
+		}
 		return result;
 	}
 
