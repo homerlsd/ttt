@@ -7,7 +7,26 @@
         <locationY>406</locationY>
         <actionName>InvocableTestClass</actionName>
         <actionType>apex</actionType>
+        <connector>
+            <targetReference>asdasdasdasd111111</targetReference>
+        </connector>
         <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </actionCalls>
+    <actionCalls>
+        <name>asdasdasdasd111111</name>
+        <label>asdasd</label>
+        <locationX>560</locationX>
+        <locationY>185</locationY>
+        <actionName>submit</actionName>
+        <actionType>submit</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>objectId</name>
+            <value>
+                <stringValue/>
+            </value>
+        </inputParameters>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </actionCalls>
     <apiVersion>51.0</apiVersion>
