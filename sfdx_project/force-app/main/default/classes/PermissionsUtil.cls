@@ -548,7 +548,7 @@ public without sharing class PermissionsUtil {
 	public static Boolean TeamsIntegrationEnabled {
 		get {
 			if(TeamsIntegrationEnabled == null) {
-				TeamsIntegrationEnabled = true;//FeatureMap1.get(MAP_FEATURE1_INDEX_BY_NAME.get(FP_TEAMS_INTEGRATION_ENABLED));
+				TeamsIntegrationEnabled = FeatureMap1.get(MAP_FEATURE1_INDEX_BY_NAME.get(FP_TEAMS_INTEGRATION_ENABLED));
 			}
 			return TeamsIntegrationEnabled;
 		}

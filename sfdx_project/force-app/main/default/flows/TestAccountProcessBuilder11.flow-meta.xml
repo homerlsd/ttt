@@ -13,9 +13,6 @@
         <locationY>400</locationY>
         <actionName>InvocableTestClass</actionName>
         <actionType>apex</actionType>
-        <connector>
-            <targetReference>myDecision3</targetReference>
-        </connector>
         <flowTransactionModel>CurrentTransaction</flowTransactionModel>
         <inputParameters>
             <processMetadataValues>
@@ -1550,7 +1547,7 @@ asdasd</stringValue>
             <assignToReference>myCollection_myRule_4_A13recipientIds</assignToReference>
             <operator>Add</operator>
             <value>
-                <elementReference>formula_5_myRule_4_A13_8009517213</elementReference>
+                <elementReference>formula_5_myRule_4_A13_1476934508</elementReference>
             </value>
         </assignmentItems>
         <connector>
@@ -1798,7 +1795,7 @@ asdasd</stringValue>
             <label>Criteria3</label>
         </rules>
     </decisions>
-    <description>TestAccountProcessBuilderDEscriptionRecordChange</description>
+    <description>TestAccountProcessBuilderDEscriptionRecordChange2</description>
     <formulas>
         <processMetadataValues>
             <name>originalFormula</name>
@@ -1806,7 +1803,7 @@ asdasd</stringValue>
                 <stringValue>[Account].Parent.Name + null</stringValue>
             </value>
         </processMetadataValues>
-        <name>formula_2_myRule_1_A1_1079123889</name>
+        <name>formula_2_myRule_1_A1_4747510411</name>
         <dataType>String</dataType>
         <expression>{!myVariable_current.Parent.Name} + null</expression>
     </formulas>
@@ -1817,7 +1814,7 @@ asdasd</stringValue>
                 <stringValue>{!$User.Id}</stringValue>
             </value>
         </processMetadataValues>
-        <name>formula_5_myRule_4_A13_8009517213</name>
+        <name>formula_5_myRule_4_A13_1476934508</name>
         <dataType>String</dataType>
         <expression>{!$User.Id}</expression>
     </formulas>
@@ -1837,7 +1834,7 @@ asdasd</stringValue>
         <dataType>Boolean</dataType>
         <expression>true</expression>
     </formulas>
-    <interviewLabel>testpharosx__TestAccountProcessBuilder11-30_InterviewLabel</interviewLabel>
+    <interviewLabel>testpharosx__TestAccountProcessBuilder11-31_InterviewLabel</interviewLabel>
     <label>TestAccountProcessBuilder11</label>
     <processMetadataValues>
         <name>ObjectType</name>
@@ -2043,7 +2040,7 @@ asdasd</stringValue>
             </processMetadataValues>
             <field>AccountSource</field>
             <value>
-                <elementReference>formula_2_myRule_1_A1_1079123889</elementReference>
+                <elementReference>formula_2_myRule_1_A1_4747510411</elementReference>
             </value>
         </inputAssignments>
         <object>Account</object>
